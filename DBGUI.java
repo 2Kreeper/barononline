@@ -15,14 +15,25 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 
+import eu.barononline.dialogs.LoginDialog;
+import eu.barononline.listeners.EntryNotFinishedListener;
+import eu.barononline.listeners.KeyboardListener;
+import eu.barononline.listeners.NewEntryListener;
+import eu.barononline.listeners.RemoveEntryListener;
+import eu.barononline.listeners.UsersListener;
+import eu.barononline.threads.DBGUIUpdateThread;
+import eu.barononline.threads.UpdateAdminThread;
+
 public class DBGUI extends JFrame {
 	
 	public static DBGUI gui;
 	
 	public JTable jTable1;
 	public String username;
-	public String colName;
+	public int userID;
 	public boolean admin = false;
+	
+	private JButton removeEntryBt, usersButton;
 	
 	private DefaultTableModel model;
 
@@ -81,6 +92,7 @@ public class DBGUI extends JFrame {
         jScrollPane1.setViewportView(jTable1);
 		jTable1.addKeyListener(new KeyboardListener());
 		jTable1.getTableHeader().setReorderingAllowed(false);
+		jTable1.setDoubleBuffered(true);
 		
         getContentPane().add(BorderLayout.CENTER, jScrollPane1);
         
@@ -92,11 +104,10 @@ public class DBGUI extends JFrame {
         buttonPanel.add(newEntryBt);
         
         //adding "remove"-button:
-        JButton removeEntryBt = new JButton("Ausgewählten Eintrag entfernen");
+        removeEntryBt = new JButton("Ausgewählten Eintrag ins Archiv verschieben");
         removeEntryBt.addActionListener(new RemoveEntryListener(this));
-        if(admin) {
-        	buttonPanel.add(removeEntryBt);
-        }
+        removeEntryBt.setVisible(admin);
+        buttonPanel.add(removeEntryBt);
         
         //adding "entry finished"-button:
         JButton entryFinishedButton = new JButton("Ausgewählten Eintrag als erledigt markieren");
@@ -108,10 +119,24 @@ public class DBGUI extends JFrame {
         entryNotFinishedButton.addActionListener(new EntryNotFinishedListener(this));
         buttonPanel.add(entryNotFinishedButton);
         
+        //adding "users"-button:
+        usersButton = new JButton("Accountverwaltung öffnen");
+        usersButton.addActionListener(new UsersListener());
+        usersButton.setVisible(admin);
+        buttonPanel.add(usersButton);
+        
         getContentPane().add(BorderLayout.SOUTH, buttonPanel);
         
         pack();
         printHAs();
+        
+        //Creating auto-update-thread:
+        DBGUIUpdateThread guiUpdateThread = new DBGUIUpdateThread();
+        guiUpdateThread.start();
+        
+        //Creating admin-check-thread:
+        UpdateAdminThread adminUpdateThread = new UpdateAdminThread();
+        adminUpdateThread.start();
 	}
 
 	
@@ -125,9 +150,9 @@ public class DBGUI extends JFrame {
 		try {
 			while(rs.next()) {
 				if(gui.admin) {
-					gui.addTableRow(rs.getString("fach"), rs.getString("medium"), rs.getString("seite"), rs.getString("aufgaben"), rs.getDate("bis").toLocaleString().substring(0, 10), Integer.toString(rs.getInt("ID")), DBAccessor.hasUserFinished(gui.colName, rs.getInt("ID")), rs.getString("erstellt_von"));
+					gui.addTableRow(rs.getString("fach"), rs.getString("medium"), rs.getString("seite"), rs.getString("aufgaben"), rs.getDate("bis").toLocaleString().substring(0, 10), Integer.toString(rs.getInt("ID")), DBAccessor.hasUserFinished(gui.userID, rs.getInt("ID")), DBAccessor.getUsername(rs.getInt("erstellt_von")));
 				} else {
-					gui.addTableRow(rs.getString("fach"), rs.getString("medium"), rs.getString("seite"), rs.getString("aufgaben"), rs.getDate("bis").toLocaleString().substring(0, 10), Integer.toString(rs.getInt("ID")), DBAccessor.hasUserFinished(gui.colName, rs.getInt("ID")));
+					gui.addTableRow(rs.getString("fach"), rs.getString("medium"), rs.getString("seite"), rs.getString("aufgaben"), rs.getDate("bis").toLocaleString().substring(0, 10), Integer.toString(rs.getInt("ID")), DBAccessor.hasUserFinished(gui.userID, rs.getInt("ID")));
 				}
 			}
 		} catch (SQLException e) {
@@ -158,5 +183,11 @@ public class DBGUI extends JFrame {
 		int id = Integer.parseInt((String) jTable1.getValueAt(tableIndex, 5));
 		DBAccessor.removeRow(id);
 		removeRow(tableIndex);
+	}
+
+	
+	public void updateAdmin() {
+		removeEntryBt.setVisible(admin);
+		usersButton.setVisible(admin);
 	}
 }

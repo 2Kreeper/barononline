@@ -1,9 +1,11 @@
-package eu.barononline;
+package eu.barononline.listeners;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JOptionPane;
+
+import eu.barononline.DBGUI;
 
 public class RemoveEntryListener implements ActionListener {
 

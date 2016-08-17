@@ -1,7 +1,10 @@
-package eu.barononline;
+package eu.barononline.listeners;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import eu.barononline.DBGUI;
+import eu.barononline.dialogs.NewEntryDialog;
 
 public class NewEntryListener implements ActionListener {
 

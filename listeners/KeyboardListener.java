@@ -1,7 +1,9 @@
-package eu.barononline;
+package eu.barononline.listeners;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
+import eu.barononline.DBGUI;
 
 public class KeyboardListener implements KeyListener {
 

@@ -15,8 +15,8 @@ public class EntryFinishedListener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		int[] selected = gui.jTable1.getSelectedRows();
 		for(int i: selected) {
-			int id = Integer.parseInt((String) gui.jTable1.getValueAt(i, 5));
-			DBAccessor.finishEntry(id, gui.colName);
+			int haID = Integer.parseInt((String) gui.jTable1.getValueAt(i, 5));
+			DBAccessor.finishEntry(haID, gui.userID);
 			gui.updateHAs();
 		}
 	}

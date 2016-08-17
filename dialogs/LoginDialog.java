@@ -1,4 +1,4 @@
-package eu.barononline;
+package eu.barononline.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,6 +14,10 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+
+import eu.barononline.DBAccessor;
+import eu.barononline.DBGUI;
+import eu.barononline.listeners.LoginListener;
 
 public class LoginDialog extends JDialog {
 	
@@ -67,7 +71,7 @@ public class LoginDialog extends JDialog {
 		try {
 			if(DBAccessor.doesUserExist(username, password)) {
 				DBGUI.gui.username = username;
-				DBGUI.gui.colName = DBAccessor.getColName(username);
+				DBGUI.gui.userID = DBAccessor.getUserID(username);
 				if(DBAccessor.isUserAdmin(username)) {
 					DBGUI.gui.admin = true;
 				} else {
@@ -76,7 +80,7 @@ public class LoginDialog extends JDialog {
 				DBGUI.gui.init();
 				DBGUI.gui.setVisible(true);
 				this.dispose();
-				JOptionPane.showMessageDialog(DBGUI.gui, "Willkommen, " + DBGUI.gui.colName, "Willkommen!", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(DBGUI.gui, "Willkommen, " + DBGUI.gui.username, "Willkommen!", JOptionPane.INFORMATION_MESSAGE);
 			} else {
 				passwordPfld.setText("");
 				JOptionPane.showMessageDialog(this, "Fehler beim Anmelden:\nBenutzername oder Passwort ist leider falsch", "Anmeldefehler", JOptionPane.ERROR_MESSAGE);
